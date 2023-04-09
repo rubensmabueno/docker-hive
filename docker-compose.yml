@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  hive:
+    build: .
+    command: /opt/hive/bin/hive --service hiveserver2
+    volumes:
+    - ./config/core-site.xml:/opt/hive/conf/core-site.xml
+    - ./config/hive-site.xml:/opt/hive/conf/hive-site.xml
+    - ./config/hive-log4j2.properties:/opt/hive/conf/log4j2.properties
+    - ./config/ivysettings.xml:/opt/hive/conf/ivysettings.xml
+    ports:
+    - 10000:10000
+    - 10002:10002
+    depends_on:
+      metastore:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-w", "1", "localhost", "10002"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  metastore:
+    build: .
+    command: /opt/hive/bin/hive --service metastore
+    volumes:
+    - ./config/core-site.xml:/opt/hive/conf/core-site.xml
+    - ./config/hive-site.xml:/opt/hive/conf/hive-site.xml
+    - ./config/ivysettings.xml:/opt/hive/conf/ivysettings.xml
+    - ./config/hive-log4j2.properties:/opt/hive/conf/log4j2.properties
+    - ./config/jmx-config.yml:/opt/jmx_prometheus_javaagent/config.yml
+    environment:
+    - HADOOP_OPTS=-javaagent:/opt/jmx_prometheus_javaagent/jmx_prometheus_javaagent.jar=5556:/opt/jmx_prometheus_javaagent/config.yml
+    ports:
+    - 9083:9083
+    - 5556:5556
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-w", "1", "localhost", "9083"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  postgresql:
+    hostname: postgresql
+    image: postgres:9.5
+    volumes:
+    - "./tmp/postgres:/var/lib/postgresql/data"
+    ports:
+    - 5432:5432
+    environment:
+    - POSTGRES_PASSWORD=hive
+    - POSTGRES_USER=hive
+    - POSTGRES_DB=metastore
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "metastore" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
