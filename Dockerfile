@@ -18,15 +18,16 @@ RUN curl -s https://dlcdn.apache.org/hive/hive-${HIVE_VERSION}/apache-hive-${HIV
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-ADD config/core-site.xml $HADOOP_CONF_DIR
-ADD config/hadoop-env.sh $HADOOP_CONF_DIR
-ADD config/hive-site.xml $HIVE_HOME/conf
-ADD config/beeline-log4j2.properties $HIVE_HOME/conf
-ADD config/hive-env.sh $HIVE_HOME/conf
-ADD config/hive-exec-log4j2.properties $HIVE_HOME/conf
-ADD config/hive-log4j2.properties $HIVE_HOME/conf
-ADD config/ivysettings.xml $HIVE_HOME/conf
-ADD config/llap-daemon-log4j2.properties $HIVE_HOME/conf
+ADD config/core-site.xml $HADOOP_CONF_DIR/core-site.xml
+ADD config/hadoop-env.sh $HADOOP_CONF_DIR/hadoop-env.xml
+ADD config/core-site.xml $HIVE_HOME/conf/core-site.xml
+ADD config/hive-site.xml $HIVE_HOME/conf/hive-site.xml
+ADD config/beeline-log4j2.properties $HIVE_HOME/conf/beeline-log4j2.properties
+ADD config/hive-env.sh $HIVE_HOME/conf/hive-env.sh
+ADD config/hive-exec-log4j2.properties $HIVE_HOME/conf/hive-exec-log4j2.properties
+ADD config/hive-log4j2.properties $HIVE_HOME/conf/hive-log4j2.properties
+ADD config/ivysettings.xml $HIVE_HOME/conf/ivysettings.xml
+ADD config/llap-daemon-log4j2.properties $HIVE_HOME/conf/llap-daemon-log4j2.properties
 
 COPY entrypoint.sh /entrypoint.sh
 
