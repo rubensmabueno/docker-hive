@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "$2" == *"metastore"* ]]; then
+if [[ "${@}" == *"metastore"* ]]; then
   schematool -dbType postgres -initSchema
 fi
 
